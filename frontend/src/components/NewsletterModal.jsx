@@ -1,12 +1,11 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 
 const API = '/api'
 
 export default function NewsletterModal({ onClose }) {
-    const [html, setHtml] = useState('')
+    const [html, setHtml] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
-    const iframeRef = useRef(null)
 
     useEffect(() => {
         let cancelled = false
@@ -27,18 +26,6 @@ export default function NewsletterModal({ onClose }) {
         load()
         return () => { cancelled = true }
     }, [])
-
-    // Write HTML into the iframe after it's loaded
-    useEffect(() => {
-        if (html && iframeRef.current) {
-            const doc = iframeRef.current.contentDocument
-            if (doc) {
-                doc.open()
-                doc.write(html)
-                doc.close()
-            }
-        }
-    }, [html])
 
     // Close on Escape
     useEffect(() => {
@@ -70,10 +57,10 @@ export default function NewsletterModal({ onClose }) {
                     {!loading && error && (
                         <div className="state-box">⚠️ {error}</div>
                     )}
-                    {!loading && !error && (
+                    {!loading && !error && html && (
                         <iframe
-                            ref={iframeRef}
                             title="Newsletter Preview"
+                            srcDoc={html}
                             sandbox="allow-same-origin"
                         />
                     )}
